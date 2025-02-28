@@ -1,10 +1,34 @@
+const projectOptions = [
+	{ value: "", label: "No Project" },
+	{ value: "Work", label: "Work" },
+	{ value: "Personal", label: "Personal" },
+	{ value: "Errands", label: "Errands" },
+];
+
 document.addEventListener("DOMContentLoaded", () => {
 	loadTasks();
 	loadTheme();
 	setupDragAndDrop();
+	populateProjectDropdown("projectSelect"); // ✅ Populate the main dropdown
 
 	document.getElementById("darkModeToggle").addEventListener("change", toggleTheme);
 });
+
+// Function to populate project dropdowns
+function populateProjectDropdown(selectId, selectedValue = "") {
+	const selectMenu = document.getElementById(selectId);
+	selectMenu.innerHTML = `
+      <option value="">-- Select Project (Optional) --</option>
+      ${projectOptions
+				.map(
+					(project) =>
+						`<option value="${project.value}" ${project.value === selectedValue ? "selected" : ""}>
+              ${project.label}
+          </option>`
+				)
+				.join("")}
+  `;
+}
 
 function loadTheme() {
 	const darkModeEnabled = localStorage.getItem("darkMode") === "enabled";
@@ -73,36 +97,37 @@ function editTask(button) {
 		}
 	});
 
+	// Create a unique ID for the dropdown
+	const dropdownId = `edit-project-${Math.random().toString(36).substr(2, 9)}`;
+
 	// Replace task content with editable fields
 	taskContent.innerHTML = `
-    <div class="edit-container">
-        <select class="form-select form-select-sm edit-project">
-            <option value="" ${projectName ? "" : "selected"}>No Project</option>
-            <option value="Work" ${projectName === "Work" ? "selected" : ""}>Work</option>
-            <option value="Personal" ${projectName === "Personal" ? "selected" : ""}>Personal</option>
-            <option value="Errands" ${projectName === "Errands" ? "selected" : ""}>Errands</option>
-        </select>
-        <input type="text" class="form-control form-control-sm edit-task" value="${taskDescription}">
-    </div>
+      <div class="edit-container">
+          <select id="${dropdownId}" class="form-select form-select-sm edit-project"></select>
+          <input type="text" class="form-control form-control-sm edit-task" value="${taskDescription}">
+      </div>
   `;
+
+	// Populate the select menu with the same JSON data
+	populateProjectDropdown(dropdownId, projectName);
 
 	// Change buttons to "Save" and "Cancel"
 	button.parentElement.innerHTML = `
-    <button class="btn btn-success btn-sm me-2" onclick="saveTask(this)">
-        <i class="fa-solid fa-check"></i> Save
-    </button>
-    <button class="btn btn-secondary btn-sm" onclick="cancelEdit(this, '${projectName}', '${taskDescription}')">
-        <i class="fa-solid fa-xmark"></i> Cancel
-    </button>
+      <button class="btn btn-success btn-sm me-2" onclick="saveTask(this, '${dropdownId}')">
+          <i class="fa-solid fa-check"></i> Save
+      </button>
+      <button class="btn btn-secondary btn-sm" onclick="cancelEdit(this, '${projectName}', '${taskDescription}')">
+          <i class="fa-solid fa-xmark"></i> Cancel
+      </button>
   `;
 }
 
-function saveTask(button) {
+function saveTask(button, dropdownId) {
 	const taskItem = button.closest("li");
 	const taskContent = taskItem.querySelector(".task-content");
 
 	// Get edited values
-	const newProject = taskItem.querySelector(".edit-project").value.trim();
+	const newProject = document.getElementById(dropdownId).value.trim();
 	const newTaskText = taskItem.querySelector(".edit-task").value.trim();
 
 	if (newTaskText === "") return alert("Task cannot be empty!");
@@ -116,18 +141,18 @@ function saveTask(button) {
 
 	// Restore buttons
 	button.parentElement.innerHTML = `
-    <button class="btn btn-warning btn-sm me-2" onclick="editTask(this)">
-        <i class="fa-solid fa-pen"></i> Edit
-    </button>
-    <button class="btn btn-secondary btn-sm me-2" onclick="copyTask(this)">
-        <i class="fa-solid fa-copy"></i> Copy
-    </button>
-    <button class="btn btn-danger btn-sm" onclick="deleteTask(this)">
-        <i class="fa-solid fa-trash"></i> Delete
-    </button>
+      <button class="btn btn-warning btn-sm me-2" onclick="editTask(this)">
+          <i class="fa-solid fa-pen"></i> Edit
+      </button>
+      <button class="btn btn-secondary btn-sm me-2" onclick="copyTask(this)">
+          <i class="fa-solid fa-copy"></i> Copy
+      </button>
+      <button class="btn btn-danger btn-sm" onclick="deleteTask(this)">
+          <i class="fa-solid fa-trash"></i> Delete
+      </button>
   `;
 
-	saveTasks(); // Update localStorage
+	saveTasks(); // ✅ Update localStorage
 }
 
 function cancelEdit(button, originalProject, originalTask) {
@@ -156,19 +181,46 @@ function cancelEdit(button, originalProject, originalTask) {
 }
 
 function copyTask(button) {
-	const taskText = button.parentElement.previousElementSibling.textContent;
-	navigator.clipboard.writeText(taskText).then(() => alert("Task copied!"));
+	const taskText = button.parentElement.previousElementSibling.innerText.trim();
+	navigator.clipboard.writeText(taskText).then(() => {
+		showAlert("Task copied to clipboard!", "success");
+	});
 }
 
 function deleteTask(button) {
 	button.closest("li").remove();
 	saveTasks();
+	showAlert("Task deleted successfully!", "danger");
+}
+
+function showAlert(message, type) {
+	const alertContainer = document.getElementById("alertContainer");
+
+	// Create a new alert div
+	const alertDiv = document.createElement("div");
+	alertDiv.className = `alert alert-${type} alert-dismissible fade show text-center`;
+	alertDiv.setAttribute("role", "alert");
+	alertDiv.innerHTML = `
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  `;
+
+	// Append the alert to the container
+	alertContainer.appendChild(alertDiv);
+
+	// Remove the alert after 3 seconds
+	setTimeout(() => {
+		alertDiv.classList.remove("show");
+		alertDiv.classList.add("fade");
+		setTimeout(() => alertDiv.remove(), 500); // Ensure smooth fade out
+	}, 3000);
 }
 
 function deleteAllTasks() {
 	if (confirm("Are you sure you want to delete all tasks?")) {
 		document.getElementById("taskList").innerHTML = "";
 		saveTasks();
+		showAlert("All tasks deleted successfully!", "danger"); // ❌ Red alert
 	}
 }
 
@@ -226,7 +278,9 @@ function copyAllTasks() {
 		copyText += tasksByProject[project].join("\n") + "\n";
 	});
 
-	navigator.clipboard.writeText(copyText.trim()).then(() => alert("All tasks copied!"));
+	navigator.clipboard.writeText(copyText.trim()).then(() => {
+		showAlert("All tasks copied to clipboard!", "success"); // ✅ Green alert
+	});
 }
 
 function getWeekNumber(date) {

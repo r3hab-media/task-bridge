@@ -55,3 +55,15 @@ body.dark-mode .btn-success:hover {
   background-color: #01c9b5;
   border-color: #01c9b5;
 }
+
+body.dark-mode input::placeholder {
+  color: gray
+}
+
+.form-switch .form-check-input {
+  width: 4em;
+}
+
+.form-check-input.go-dark {
+  height: 2em;
+}
