@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TaskBridge</title>
+  <link rel="icon" href="favicon.png" type="image/png">
   <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css'
     integrity='sha512-jnSuA4Ss2PkkikSOLtYs8BlYIeeIK1h99ty4YfvRPAlzr377vr3CXDb7sb7eEEBYjDtcYj+AjBH3FLv5uSJuXg=='
     crossorigin='anonymous' />
@@ -20,13 +21,75 @@
 
 <body>
   <div id="alertContainer" class="position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 1050;"></div>
-  <div class="container py-5">
+  <div class="container py-2">
+    <div class="row my-2">
+      <div class="col-12">
+        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+          <a href="https://cherwellprod/CherwellClient/Access?_=7cf7dd62#1" class="btn btn-outline-warning btn-sm"
+            target="_blank">
+            My Tasks <img class="icon" src="img/cherwell-icon.ico" alt="" title="Cherwell">
+          </a>
+          <a href="https://chat.com" class="btn btn-outline-warning btn-sm" target="_blank">
+            Chat <img class="icon" src="img/chatgpt-icon.png" alt="" title="Sitefinity Authoring">
+          </a>
+
+          <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-warning dropdown-toggle" data-bs-toggle="dropdown"
+              aria-expanded="false">
+              Sitefinity <img class="icon" src="img/progress-icon.png" alt="" title="Sitefinity Authoring">
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a href="https://scottsdaleaz-stg.sitefinity.cloud/Sitefinity/adminapp/renderer/dashboard"
+                  class="dropdown-item" target="_blank">
+                  Staging
+                </a>
+              </li>
+              <li>
+                <a href="https://scottsdaleaz-aut.sitefinity.cloud/Sitefinity/adminapp/renderer/dashboard"
+                  class="dropdown-item" target="_blank">
+                  Authoring
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-warning dropdown-toggle" data-bs-toggle="dropdown"
+              aria-expanded="false">
+              Progress <img class="icon" src="img/progress-icon.png" alt="" title="Sitefinity Authoring">
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a href="https://community.progress.com/s/case/Case/00B30000007rO0wEAE" class="dropdown-item"
+                  target="_blank" title="Progress - Manage Cases">
+                  Case Management
+                </a>
+              </li>
+              <li>
+                <a href="https://www.progress.com/documentation/sitefinity-cms/upgrade-using-sitefinity-cli"
+                  class="dropdown-item" target="_blank" title="Progress - CLI Upgrades">
+                  Upgrades (CLI)
+                </a>
+              </li>
+            </ul>
+          </div>
+          <a href="https://dev.azure.com/scottsdaleaz-sfcloud/ScottsdaleAZ-WCMSS" class="btn btn-outline-warning btn-sm"
+            target="_blank">
+            DevOps <img class="icon" src="img/devops-icon.png" alt="" title="Azure DevOps">
+          </a>
+          <a href="https://scottsdaleaz.sharepoint.com" class="btn btn-outline-warning btn-sm" target="_blank">
+            SharePoint <img class="icon" src="img/sharepoint-icon.png" alt="" title="SharePoint">
+          </a>
+        </div>
+      </div>
+    </div>
     <div class="row mb-4">
       <div class="col-lg-12 text-center">
-        <h1>TaskBridge</h1>
+        <h1><i class="fa-solid fa-bridge-circle-check text-warning"></i> <span class="text-danger">Task</span><span class="fst-italic text-warning">Bridge</span></h1>
         <!-- Dark Mode Toggle -->
         <div class="form-check form-switch d-inline-block d-flex align-items-center justify-content-center">
-          <input class="form-check-input me-2 go-dark" type="checkbox" id="darkModeToggle">
+          <input class="form-check-input go-dark me-2" type="checkbox" id="darkModeToggle">
           <label class="form-check-label" for="darkModeToggle">Dark Mode</label>
         </div>
       </div>
@@ -41,6 +104,7 @@
           <button class="btn btn-primary btn-lg" onclick="addTask()">Add Task</button>
         </div>
       </div>
+      <div class="col-12 col-md-3" id="projectSelect-ticket"></div>
     </div>
 
     <!-- Task List -->
@@ -55,9 +119,10 @@
     <!-- Actions -->
     <div class="row mt-3">
       <div class="col-md-12 d-flex justify-content-between">
-        <div>
-          <input type="checkbox" id="includeWeekCheckbox" class="form-check-input">
-          <label for="includeWeekCheckbox" class="form-check-label">Include Week Number</label>
+
+        <div class="form-check form-switch d-inline-block d-flex align-items-center justify-content-center">
+          <input class="form-check-input go-dark me-2" type="checkbox" id="includeWeekCheckbox">
+          <label class="form-check-label" for="includeWeekCheckbox">Include Week Number</label>
         </div>
         <div>
           <button class="btn btn-danger me-2" onclick="deleteAllTasks()"><i class="fas fa-trash"></i> All</button>

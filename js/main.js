@@ -1,15 +1,21 @@
 const projectOptions = [
-	{ value: "", label: "No Project" },
-	{ value: "Work", label: "Work" },
-	{ value: "Personal", label: "Personal" },
-	{ value: "Errands", label: "Errands" },
+	{ value: "Cherwell", label: "Cherwell" },
+	{ value: "Development of scottsdalelibrary.org", label: "Development of scottsdalelibrary.org" },
+	{ value: "Scottsdaleaz.gov Phase 2", label: "Scottsdaleaz.gov Phase 2" },
+	{ value: "Housing Affordability Calculator", label: "Housing Affordability Calculator" },
+	{ value: ".Net Core training w/ roadmap for conversion", label: ".Net Core training w/ roadmap for conversion" },
+	{ value: "Document all SharePoint integrations", label: "Document all SharePoint integrations" },
+	{ value: "Guide Alan as he builds choosescottsdale.com", label: "Guide Alan as he builds choosescottsdale.com" },
+	{ value: "Cognito Lead - various Cognito duties", label: "Cognito Lead - various Cognito duties" },
+	{ value: "Standard City Required Training", label: "Standard City Required Training" },
+	{ value: "Self-selected Training (not required)", label: "Self-selected Training (not required)" },
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
 	loadTasks();
 	loadTheme();
 	setupDragAndDrop();
-	populateProjectDropdown("projectSelect"); // ✅ Populate the main dropdown
+	populateProjectDropdown("projectSelect");
 
 	document.getElementById("darkModeToggle").addEventListener("change", toggleTheme);
 });
@@ -17,17 +23,45 @@ document.addEventListener("DOMContentLoaded", () => {
 // Function to populate project dropdowns
 function populateProjectDropdown(selectId, selectedValue = "") {
 	const selectMenu = document.getElementById(selectId);
+	if (!selectMenu) return;
+
+	// Populate the dropdown with options
 	selectMenu.innerHTML = `
-      <option value="">-- Select Project (Optional) --</option>
+      <option value="" disabled selected>-- Select Project (Optional) --</option>
       ${projectOptions
 				.map(
 					(project) =>
 						`<option value="${project.value}" ${project.value === selectedValue ? "selected" : ""}>
-              ${project.label}
-          </option>`
+                      ${project.label}
+                  </option>`
 				)
 				.join("")}
   `;
+
+	// Get the corresponding ticket input container
+	let ticketInputContainer = document.getElementById(`${selectId}-ticket`);
+	if (!ticketInputContainer) {
+		ticketInputContainer = document.createElement("div");
+		ticketInputContainer.id = `${selectId}-ticket`;
+		selectMenu.parentElement.appendChild(ticketInputContainer);
+	}
+
+	// Function to show/hide the ticket input
+	function updateTicketInput() {
+		if (selectMenu.value === "Cherwell") {
+			ticketInputContainer.innerHTML = `
+              <input type="text" id="${selectId}-ticketInput" class="form-control mt-2" placeholder="Enter Ticket#">
+          `;
+		} else {
+			ticketInputContainer.innerHTML = "";
+		}
+	}
+
+	// Run initially in case "Cherwell" is pre-selected
+	updateTicketInput();
+
+	// Attach event listener to handle project selection changes
+	selectMenu.addEventListener("change", updateTicketInput);
 }
 
 function loadTheme() {
@@ -47,94 +81,117 @@ function addTask() {
 	const projectSelect = document.getElementById("projectSelect");
 	const taskText = taskInput.value.trim();
 	const project = projectSelect.value.trim();
+	const ticketInput = document.getElementById("projectSelect-ticketInput");
+	const ticketNumber = ticketInput ? ticketInput.value.trim() : "";
 
 	if (taskText === "") return alert("Please enter a task.");
 
 	const taskList = document.getElementById("taskList");
 	const li = document.createElement("li");
 	li.draggable = true;
-	li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+	li.classList.add("list-group-item", "p-3");
 
-	// Display format: Show project if selected
-	let taskDisplay = project ? `<strong>Project Name:</strong> ${project}<br><strong>Task:</strong> ${taskText}` : `<strong>Task:</strong> ${taskText}`;
+	// Display format: Show project and ticket# if selected
+	let taskDisplay = project
+		? `<strong>Project Name:</strong> ${project} ${ticketNumber ? "(Ticket#: " + ticketNumber + ")" : ""}<br><strong>Task:</strong> ${taskText}`
+		: `<strong>Task:</strong> ${taskText}`;
 
 	li.innerHTML = `
-        <div class="task-content">${taskDisplay}</div>
-        <div>
-            <button class="btn btn-warning btn-sm me-2" onclick="editTask(this)">
-                <i class="fa-solid fa-pen"></i> Edit
-            </button>
-            <button class="btn btn-secondary btn-sm me-2" onclick="copyTask(this)">
-                <i class="fa-solid fa-copy"></i> Copy
-            </button>
-            <button class="btn btn-danger btn-sm" onclick="deleteTask(this)">
-                <i class="fa-solid fa-trash"></i> Delete
-            </button>
-        </div>
-    `;
+      <div class="task-content">${taskDisplay}</div>
+      <div class="d-flex justify-content-end mt-2">
+          <button class="btn btn-warning btn-sm me-2" onclick="editTask(this)">
+              <i class="fa-solid fa-pen"></i> Edit
+          </button>
+          <button class="btn btn-secondary btn-sm me-2" onclick="copyTask(this)">
+              <i class="fa-solid fa-copy"></i> Copy
+          </button>
+          <button class="btn btn-danger btn-sm" onclick="deleteTask(this)">
+              <i class="fa-solid fa-trash"></i> Delete
+          </button>
+      </div>
+  `;
 
 	taskList.appendChild(li);
 	taskInput.value = "";
 	projectSelect.value = "";
+	if (ticketInput) ticketInput.value = "";
 
 	saveTasks();
 	setupDragAndDrop();
+	taskInput.focus();
 }
 
 function editTask(button) {
 	const taskItem = button.closest("li");
 	const taskContent = taskItem.querySelector(".task-content");
 
-	// Extract project name and task text
+	// Extract project name, ticket#, and task text
 	let projectName = "";
+	let ticketNumber = "";
 	let taskDescription = "";
 
 	taskContent.innerText.split("\n").forEach((line) => {
 		if (line.startsWith("Project Name:")) {
-			projectName = line.replace("Project Name:", "").trim();
+			const match = line.match(/Project Name:\s*(.+?)(\(Ticket#:\s*(\d+)\))?/);
+			projectName = match ? match[1].trim() : "";
+			ticketNumber = match && match[3] ? match[3].trim() : "";
 		} else if (line.startsWith("Task:")) {
 			taskDescription = line.replace("Task:", "").trim();
 		}
 	});
 
-	// Create a unique ID for the dropdown
+	// Unique IDs for elements
 	const dropdownId = `edit-project-${Math.random().toString(36).substr(2, 9)}`;
+	const ticketInputId = `${dropdownId}-ticket`;
 
 	// Replace task content with editable fields
 	taskContent.innerHTML = `
       <div class="edit-container">
           <select id="${dropdownId}" class="form-select form-select-sm edit-project"></select>
+          <div id="${ticketInputId}" class="mt-2"></div>
           <input type="text" class="form-control form-control-sm edit-task" value="${taskDescription}">
       </div>
   `;
 
-	// Populate the select menu with the same JSON data
+	// Populate the dropdown with the existing project selection
 	populateProjectDropdown(dropdownId, projectName);
+
+	// Ensure the Ticket# input is created if "Cherwell" was the selected project
+	setTimeout(() => {
+		const ticketContainer = document.getElementById(ticketInputId);
+		if (projectName === "Cherwell") {
+			ticketContainer.innerHTML = `
+              <input type="text" id="${ticketInputId}-input" class="form-control mt-2" placeholder="Enter Ticket#" value="${ticketNumber}">
+          `;
+		}
+	}, 100); // Slight delay ensures dropdown updates first
 
 	// Change buttons to "Save" and "Cancel"
 	button.parentElement.innerHTML = `
-      <button class="btn btn-success btn-sm me-2" onclick="saveTask(this, '${dropdownId}')">
+      <button class="btn btn-success btn-sm me-2" onclick="saveTask(this, '${dropdownId}', '${ticketInputId}')">
           <i class="fa-solid fa-check"></i> Save
       </button>
-      <button class="btn btn-secondary btn-sm" onclick="cancelEdit(this, '${projectName}', '${taskDescription}')">
+      <button class="btn btn-secondary btn-sm" onclick="cancelEdit(this, '${projectName}', '${ticketNumber}', '${taskDescription}')">
           <i class="fa-solid fa-xmark"></i> Cancel
       </button>
   `;
 }
 
-function saveTask(button, dropdownId) {
+function saveTask(button, dropdownId, ticketInputId) {
 	const taskItem = button.closest("li");
 	const taskContent = taskItem.querySelector(".task-content");
 
 	// Get edited values
 	const newProject = document.getElementById(dropdownId).value.trim();
 	const newTaskText = taskItem.querySelector(".edit-task").value.trim();
+	const ticketInput = document.getElementById(`${ticketInputId}-input`);
+	const newTicketNumber = ticketInput ? ticketInput.value.trim() : "";
 
 	if (newTaskText === "") return alert("Task cannot be empty!");
 
 	// Update task display
 	let updatedDisplay = newProject
-		? `<strong>Project Name:</strong> ${newProject}<br><strong>Task:</strong> ${newTaskText}`
+		? `<strong>Project Name:</strong> ${newProject} ${newTicketNumber ? "(Ticket#: " + newTicketNumber + ")" : ""}<br><strong>Task:</strong> ${newTaskText}`
 		: `<strong>Task:</strong> ${newTaskText}`;
 
 	taskContent.innerHTML = updatedDisplay;
@@ -152,7 +209,7 @@ function saveTask(button, dropdownId) {
       </button>
   `;
 
-	saveTasks(); // ✅ Update localStorage
+	saveTasks();
 }
 
 function cancelEdit(button, originalProject, originalTask) {
@@ -267,7 +324,7 @@ function copyAllTasks() {
 			tasksByProject[projectName] = [];
 		}
 
-		tasksByProject[projectName].push(`Task: ${taskDescription}\n---`);
+		tasksByProject[projectName].push(`Task: ${taskDescription}\n----------------`);
 	});
 
 	// Construct the final text output
@@ -321,7 +378,7 @@ function loadTasks() {
 	savedTasks.forEach((task) => {
 		const li = document.createElement("li");
 		li.draggable = true;
-		li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+		li.classList.add("list-group-item");
 
 		// Correctly format task display
 		let taskDisplay = task.project
@@ -329,18 +386,18 @@ function loadTasks() {
 			: `<strong>Task:</strong> ${task.text}`;
 
 		li.innerHTML = `
-            <div class="task-content">${taskDisplay}</div>
-            <div>
-                <button class="btn btn-warning btn-sm me-2" onclick="editTask(this)">
-                    <i class="fa-solid fa-pen"></i> Edit
-                </button>
-                <button class="btn btn-secondary btn-sm me-2" onclick="copyTask(this)">
-                    <i class="fa-solid fa-copy"></i> Copy
-                </button>
-                <button class="btn btn-danger btn-sm" onclick="deleteTask(this)">
-                    <i class="fa-solid fa-trash"></i> Delete
-                </button>
-            </div>
+          <div class="task-content">${taskDisplay}</div>
+          <div class="d-flex justify-content-end mt-2">
+            <button class="btn btn-warning btn-sm me-2" onclick="editTask(this)">
+              <i class="fa-solid fa-pen"></i> Edit
+            </button>
+            <button class="btn btn-secondary btn-sm me-2" onclick="copyTask(this)">
+                <i class="fa-solid fa-copy"></i> Copy
+            </button>
+            <button class="btn btn-danger btn-sm me-2" onclick="deleteTask(this)">
+                <i class="fa-solid fa-trash"></i> Delete
+            </button>
+          </div>
         `;
 
 		taskList.appendChild(li);
