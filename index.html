@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager</title>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css'
+    integrity='sha512-jnSuA4Ss2PkkikSOLtYs8BlYIeeIK1h99ty4YfvRPAlzr377vr3CXDb7sb7eEEBYjDtcYj+AjBH3FLv5uSJuXg=='
+    crossorigin='anonymous' />
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css'
+    integrity='sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=='
+    crossorigin='anonymous' />
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js'
+    integrity='sha512-7Pi/otdlbbCR+LnW+F7PwFcSDJOuUJB3OxtEHbg4vSMvzvJjde4Po1v4BR9Gdc9aXNUNFVUY+SK51wWT8WF0Gg=='
+    crossorigin='anonymous' defer></script>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/main.js" defer></script>
+</head>
+
+<body>
+  <div class="container py-5">
+    <div class="row mb-4">
+      <div class="col text-center">
+        <h1>Task Manager</h1>
+        <!-- Dark Mode Toggle -->
+        <div class="form-check form-switch d-inline-block">
+          <input class="form-check-input" type="checkbox" id="darkModeToggle">
+          <label class="form-check-label" for="darkModeToggle">Dark Mode</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Task Input Section -->
+    <div class="row mb-3">
+      <div class="col-md-8 offset-md-2">
+        <div class="input-group">
+          <input type="text" id="taskInput" class="form-control" placeholder="Enter a new task">
+          <select id="projectSelect" class="form-select">
+            <option value="">-- Select Project (Optional) --</option>
+            <option value="Work">Work</option>
+            <option value="Personal">Personal</option>
+            <option value="Errands">Errands</option>
+          </select>
+          <button class="btn btn-primary" onclick="addTask()">Add Task</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Task List -->
+    <div class="row">
+      <div class="col-md-8 offset-md-2">
+        <ul id="taskList" class="list-group">
+          <!-- Tasks will be appended here -->
+        </ul>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="row mt-3">
+      <div class="col-md-8 offset-md-2 d-flex justify-content-between">
+        <div>
+          <input type="checkbox" id="includeWeekCheckbox" class="form-check-input">
+          <label for="includeWeekCheckbox" class="form-check-label">Include Week Number</label>
+        </div>
+        <div>
+          <button class="btn btn-danger me-2" onclick="deleteAllTasks()"><i class="fas fa-trash"></i> All</button>
+          <button class="btn btn-success" onclick="copyAllTasks()"><i class="fas fa-copy"></i> All</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,57 @@
+/* styles.css */
+body {
+  transition: background-color 0.3s, color 0.3s;
+}
+
+body.dark-mode {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+body.dark-mode .card {
+  background-color: #1e1e1e;
+  border-color: #333;
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+  background-color: #333;
+  color: #e0e0e0;
+  border-color: #444;
+}
+
+body.dark-mode .btn-primary {
+  background-color: #bb86fc;
+  border-color: #bb86fc;
+}
+
+body.dark-mode .btn-primary:hover {
+  background-color: #9a67ea;
+  border-color: #9a67ea;
+}
+
+body.dark-mode .list-group-item {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+  border-color: #333;
+}
+
+body.dark-mode .btn-danger {
+  background-color: #cf6679;
+  border-color: #cf6679;
+}
+
+body.dark-mode .btn-danger:hover {
+  background-color: #b94a5a;
+  border-color: #b94a5a;
+}
+
+body.dark-mode .btn-success {
+  background-color: #03dac6;
+  border-color: #03dac6;
+}
+
+body.dark-mode .btn-success:hover {
+  background-color: #01c9b5;
+  border-color: #01c9b5;
+}
